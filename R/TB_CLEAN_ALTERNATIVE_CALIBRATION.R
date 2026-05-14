@@ -43,7 +43,7 @@ cat("======================================================================\n\n"
 # ============================================================================
 #
 # These are the Mtb infection prevalence estimates from Aim 1, calculated as:
-#   LTBI_i = (Cases_i Ã— p_reactivation) / eps_s_i
+#   LTBI_i = (Cases_i * p_reactivation) / eps_s_i
 #
 # Source: Model guide v4.4, derived from Ekramnia et al. rates and NTSS cases
 # ============================================================================
@@ -118,11 +118,10 @@ calibrate_alternative <- function(fixed_mtb_prev = aim1_mtb_prev,
     if (any(new_eps_s < 0.0001) || any(new_eps_s > 0.10)) return(1e10)
     
     # Update global eps_s for model run
-    # (This is a bit hacky but necessary given model structure)
+    # (necessary given model structure)
     assign("eps_s", new_eps_s, envir = .GlobalEnv)
     
     # Also update eps_f proportionally to maintain fast/slow ratio
-    # (Optional: could also calibrate eps_f, but keep it simple)
     eps_f_ratio <- new_eps_s / orig_eps_s
     new_eps_f <- orig_eps_f * sqrt(eps_f_ratio)  # Scale eps_f more gently
     assign("eps_f", new_eps_f, envir = .GlobalEnv)

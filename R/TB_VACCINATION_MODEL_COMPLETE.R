@@ -35,7 +35,7 @@
 #     Menzies et al. 2024 Epidemiol Infect (US reactivation TB rates)
 #     Ekramnia et al. 2024 (meta-analysis of progression rates)
 #
-# AUTHOR: [Your name]
+# AUTHOR: Jessica Rothman
 # DATE: January 2026
 # VERSION: 2.3 (Stratum-specific mixing, demographic balance, post-treatment stabilization)
 #

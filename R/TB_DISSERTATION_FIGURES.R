@@ -7,113 +7,7 @@
 # Generates publication-quality figures for Aim 3 dissertation chapter.
 # All figures saved as PNG (300 dpi) for embedding in Word/LaTeX.
 #
-# CHANGES FROM v9 (4/22/26) -- SCOPED TO ONE FIGURE:
-#   Fig 3 (manuscript Figure 2, strategy comparison) restructured from a
-#   2x2 grid of four independently-titled panels to a cleaner two-row
-#   faceted layout matching the version embedded in aim3_manuscript_4_22_26.docx:
-#
-#     a. Annual cases prevented       (Optimistic | Plausible facets)
-#     b. Number needed to vaccinate   (Optimistic | Plausible facets)
-#
-#   Each row has a single bold "a." / "b." title; scenario details live
-#   in the gray facet strip headers rather than in four separate panel
-#   titles. Visual refinements vs v9:
-#     - Faceted (facet_wrap on Scenario) so strategies align across strips
-#     - Strip backgrounds lightened to grey94 with tighter padding
-#     - Horizontal gridlines suppressed; strategy names carry the axis
-#     - Y-axis line and ticks removed (labels speak for themselves)
-#     - Label format in panel a: "5,385 (51.8%)" -- value first, percent
-#       in parens, matching the earlier grouped-bar version. Panel b
-#       shows the NNV value directly (e.g. "366").
-#     - "Mtb" rendered in italics on the y-axis (e.g. "All *Mtb*-Infected")
-#       via ggtext::element_markdown.
-#     - fmt_pct() rewritten with as.character()/formatC to avoid the
-#       "( 7%)" leading-space padding produced by format() right-alignment.
-#     - Figure width reduced from 13" to 9" now that panels share rows
-#     - All strategy colours preserved from strat_colors palette
-#
-#   All other figure blocks and helpers are UNCHANGED from v9.
-#
-# CHANGES FROM v8 (4/22/26) -- SCOPED TO TWO FIGURES ONLY:
-#   (1) Fig 3 (strategy comparison): switched from grouped-bar layout to
-#       four-panel 2x2 layout with patchwork:
-#           a. Optimistic: cases prevented   b. Plausible: cases prevented
-#           c. Optimistic: NNV               d. Plausible: NNV
-#       Strategy colours consistent across all four panels.
-#   (2) Fig 13 (NNV benchmarking): added optimistic-scenario TB entries with
-#       LHS uncertainty intervals from TB_LHS_UNCERTAINTY_INTERVALS_OPTIMISTIC.csv.
-#       Fig now shows 12 TB vaccination rows (6 strategies x 2 scenarios),
-#       distinguished by shape (triangle=optimistic, circle=plausible).
-#   (3) clean_strategy() helper: added one-line fix so
-#       "Medical comorbidities" -> "Medical" (matches optimistic UI spelling).
-#       Without this, v8 silently dropped the Medical (optimistic) whiskers.
-#
-#   All other figure blocks and helpers are UNCHANGED from v8.
-#
-# KNOWN DATA GAP: the plausible UI file (TB_LHS_UNCERTAINTY_INTERVALS.csv) does
-# NOT contain a "PLWH + Non-U.S.-Born" row -- the plausible LHS was run with
-# "All Non-U.S.-Born" instead. As a result, Fig 13's "TB: PLWH + Non-U.S.-Born
-# (plausible)" entry will have no whiskers until the plausible LHS is rerun
-# with the current strategy list. Fix the DATA, not the code.
-#
-# CHANGES FROM v7 (4/22/26):
-#   - Fig 10 (PRCC) rewritten as dual-scenario two-panel figure:
-#       Left panel:  Optimistic (VE 50-90%, psi = 50%/yr)
-#       Right panel: Plausible  (VE 30-70%, psi = 5%/yr)
-#     Matches the April 21 optimistic-first reorder applied to all other
-#     dual-scenario figures (Fig 3, Fig 8, Fig 12) and to the manuscript
-#     prose, tables, and captions. Requires TB_PRCC_RESULTS_OPTIMISTIC.csv;
-#     falls back to single-panel (plausible) if not present.
-#
-# CHANGES FROM v3 (4/21/26):
-#   - Manuscript-wide reorder: optimistic scenario now appears BEFORE plausible
-#     everywhere both scenarios are shown.
-#   - Fig 3 (manuscript Figure 2, strategy comparison) rewritten as four-panel
-#     (2 rows x 2 cols) using patchwork:
-#       Row a: Annual cases prevented
-#       Row b: Number needed to vaccinate
-#       Left column:  optimistic scenario (VE = 70%, vaccination rate = 50%/yr)
-#       Right column: plausible scenario (VE = 50%, strategy-specific rate)
-#     Strategies ordered top-to-bottom by cases prevented under the OPTIMISTIC
-#     scenario. Height increased to 9 inches to accommodate 2x2 layout.
-#   - Loads TB_OPTIMISTIC_SCENARIOS.csv for the optimistic-panel data
-#     (strategies at VE=70%, psi=50%/yr).
-#   - Fig 12 (manuscript Figure 3, threshold heatmap) panel order swapped so
-#     optimistic panel is now on the left and plausible on the right.
-#
-# CHANGES FROM 3/5/26:
-#   - Added PLWH + Non-U.S.-Born to strat_colors, strat_shapes, strat_order
-#       (color: #5DA88C, shape: 15 / square)
-#   - Added "PLWH + All NUSB" -> "PLWH + Non-U.S.-Born" mapping in clean_strategy
-#   - Reordered strat_order to rank strategies by cases prevented (most first):
-#       All High-Risk, PLWH + Non-U.S.-Born, All Mtb-Infected, PLWH + Medical,
-#       Medical, PLWH
-#   - Added strat_order_full including exploratory All Non-U.S.-Born
-#   - Fig 5 rewritten as two-panel figure (patchwork):
-#       Panel A: Total annual TB cases (legend ranked by impact)
-#       Panel B: Indirect effects on U.S.-born (cases prevented in untargeted
-#                stratum from reduced transmission)
-#       Height increased from 5.5 to 10 inches
-#
-# CHANGES FROM v3 (prior, 4/6/26):
-#   - Revised NM color palette for colorblind accessibility (3 swaps):
-#       All High-Risk:  #5B8DB8 -> #2B6A99  (darker blue)
-#       Medical:        #E07B91 -> #C44E6C  (deeper rose)
-#       HIV:            #B8A9CB -> #7B68AE  (richer purple)
-#   - Updated all hardcoded color references (Figs 2, 8, 10, 11, 12, 13)
-#   - Heatmap gradient endpoint updated to #1A4A6E
-#   - Stratum colors updated to match revised palette
-#
-# CHANGES FROM v2:
-#   - Renumbered figures to follow standard TB vax modeling paper order
-#   - NEW Fig 2: Calibration fit (observed vs. predicted by stratum)
-#   - NEW Fig 4: Stratum-level impact breakdown (grouped bar)
-#   - NEW Fig 5: Incidence trajectory (baseline vs. scenarios over time)
-#   - NEW Fig 6: Cumulative cases prevented over time
-#   - NEW Fig 13: NNV comparison with established vaccines
-#   - Updated Fig 5 (old) -> Fig 7 (time-to-impact) with cumulative panel
-#   - Minor formatting improvements to all existing figures
-#
+# 
 # FIGURE LIST:
 #   Fig 1:  Model structure diagram (TB_Transmission_Model.png -- pre-made)
 #   Fig 2:  Case source validation (model emergent vs. literature ranges)
@@ -314,7 +208,6 @@ stratum_colors <- c(
 outdir <- "."
 
 # Helper: clean strategy names consistently
-# Maps raw CSV names to figure-label names per Kristin's naming convention
 clean_strategy <- function(x) {
   x <- gsub(" \\(HIV\\+Med\\+FB\\)", "", x)
   x <- gsub(" \\(2%/yr\\)", "", x)
