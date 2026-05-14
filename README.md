@@ -3,6 +3,7 @@
 Analysis code for the manuscript:
 
 > Rothman JE, Castro KG, Lopman BA, Gandhi NR, Nelson KN. **Targeted Tuberculosis Vaccination Strategies in the United States: A Modeling Study.** *(Manuscript in preparation.)*
+> https://doi.org/10.64898/2026.05.11.26352914
 
 The code in this repository implements a deterministic compartmental transmission model that evaluates post-infection tuberculosis vaccination strategies in the United States using an M72/AS01E-like vaccine candidate. The model has four mutually exclusive risk strata (people living with HIV, persons with non-HIV medical comorbidities, non-U.S.-born persons, U.S.-born persons) and compares six vaccination strategies across two parameter scenarios — plausible (VE = 50%, strategy-specific vaccination rates) and optimistic (VE = 70%, vaccination rate = 50%/yr for all strategies). The code was written in R by Jessica Rothman.
 
